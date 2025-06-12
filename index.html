@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="Guess The Name logo.ico">
+  <title>Guess The Name</title>
+  <style>
+    @font-face {
+      font-family: "AL-KANZ Medium";
+      src: url("AILERON-THIN.OTF");
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #a2c2e5, #f1f8ff);
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+    }
+
+    .container {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+      text-align: center;
+    }
+
+    a, .a {
+      text-decoration: none;
+      padding: 20px 50px;
+      font-size: 28px;
+      color: #fff;
+      background: linear-gradient(135deg, #6a1b9a, #8e24aa);
+      border: none;
+      border-radius: 25px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: background 0.3s ease-in-out, transform 0.2s, box-shadow 0.3s ease-in-out;
+      font-family: "AL-KANZ Medium";
+    }
+
+    a:hover, .a:hover {
+      background: linear-gradient(135deg, #4a148c, #6a1b9a);
+      transform: scale(1.1);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    a:focus, .a:focus {
+      outline: none;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    }
+
+    .Create {
+      font-family: "AL-KANZ Medium";
+      font-size: 15px;
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      color: #888;
+    }
+
+    @media (max-width: 768px) {
+      a, .a {
+        font-size: 24px;
+        padding: 15px 40px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      a, .a {
+        font-size: 20px;
+        padding: 12px 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="nginx/html/index.html">Live View</a>
+    <a class="a" href="Guessing.html">Guess The Name</a>
+    <label class="Create">ⓘ Created and Designed by: Ali Asger Gadi</label>
+  </div>
+</body>
+</html>

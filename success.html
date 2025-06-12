@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Form Submitted Successfully</title>
+  <style>
+    @font-face {
+      font-family: heading;
+      src: url('AILERON-THIN.OTF');
+    }
+
+    body {
+      font-family: "heading", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #a2c2e5, #f1f8ff);
+      color: #333;
+    }
+
+    .container {
+      text-align: center;
+      padding: 20px;
+      max-width: 500px;
+    }
+
+    h2 {
+      font-weight: 100;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 18px;
+      line-height: 1.5;
+      font-weight:900;
+    }
+
+    button {
+      color: red;
+      font-size: 16px;
+      background-color: transparent;
+      border: none;
+      border-radius: 100px;
+      padding: 10px 20px;
+      transition: background-color 0.2s;
+      cursor: pointer;
+      margin-top: 25px;
+    }
+
+    button:hover {
+      background-color: rgb(237, 237, 237);
+    }
+    .Create {
+      font-family: "heading";
+      font-size: 15px;
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      color: #888;
+    }
+     @media (min-width: 769px){
+      h2 {
+        font-size: 120px;
+      }
+
+      p {
+        font-size: 30px;
+        width: 150%;
+        position:relative;
+        left:-100px;
+      }
+      button{
+          font-size:25px;
+
+      }
+     }
+
+    @media (max-width: 768px) {
+      h2 {
+        font-size: 60px;
+      }
+
+      p {
+        font-size: 20px;
+      }
+      button{
+          font-size:15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <p>
+      Thank you for being part of this special moment and for your thoughtful name suggestion.  
+      We truly appreciate your participation. The winning entry will be awarded with a special gift on the day of Chatti!
+    </p>
+    <button onclick="window.location.href='Guessing.html';">Submit Again</button>
+      <label class="Create">ⓘ Created and Designed by: Ali Asger Gadi</label>
+  </div>
+
+  <!-- <script>
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+        e.preventDefault();
+      }
+    }); -->
+  </script>
+</body>
+</html>

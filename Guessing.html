@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guess The Name</title>
+  <link rel="icon" type="image/x-icon" href="Guess The Name logo.ico">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&display=swap');
+
+    @font-face {
+      font-family: "AL-KANZ Medium";
+      src: url("AILERON-THIN.OTF");
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Arial", sans-serif;
+      background: linear-gradient(135deg, #a2c2e5, #f1f8ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .Otp-Verification .Send,
+    .Otp-Verification .Verify {
+      margin: 10px 0;
+      width: 20vh;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      text-align: center;
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+
+    .container:hover {
+      transform: scale(1.03);
+    }
+
+    h2 {
+      font-size: 2.2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"] {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.3s ease, transform 0.3s ease;
+      font-family: "Comic Relief", system-ui;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="number"]:focus {
+      border-color: #ff7cd3;
+      transform: scale(1.02);
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      font-size: 18px;
+      background-color: #138ea6;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #ff7cd3;
+      transform: scale(1.03);
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    #loading {
+      display: none;
+      margin-top: 10px;
+      font-size: 16px;
+      color: #138ea6;
+    }
+
+    .Create {
+      font-family: "AL-KANZ Medium";
+      font-size: 15px;
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      color: #888;
+    }
+
+    a {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-weight: bold;
+      font-size: 18px;
+      text-decoration: none;
+      color: white;
+      padding: 8px 16px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 2px solid white;
+      border-radius: 6px;
+      backdrop-filter: blur(4px);
+      transition: all 0.3s ease;
+    }
+
+    a:hover {
+      color: #ff7cd3;
+      border-color: #ff7cd3;
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .h {
+      position: absolute;
+      top: 20px;
+      left: 150px;
+      font-weight: bold;
+      font-size: 18px;
+      text-decoration: none;
+      color: white;
+      transition: color 0.3s ease;
+    }
+
+    .h:hover {
+      color: #ff7cd3;
+    }
+
+    @media (max-height: 700px) {
+      .container {
+        max-height: 95vh;
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .container {
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 1.6rem;
+      }
+
+      .Otp-Verification .Send,
+      .Otp-Verification .Verify {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a href="nginx/html/index.html">Live View</a>
+  <a href="/" class="h">Home</a>
+
+  <div class="container">
+    <h2>Guess The Baby's Name</h2>
+    <form id="survey-form" autocomplete="off">
+      <div class="form-group">
+        <label for="email">Your Email:</label>
+        <input type="email" id="email" name="Email" placeholder="Enter Your Email" required />
+        <div class="Otp-Verification">
+          <button type="button" class="Send" onclick="sendOtp()">Send OTP</button>
+          <input type="number" id="otpInput" placeholder="Enter OTP" style="display: none;" />
+          <p id="Verification" style="display: none; font-size: 14px; margin-top: 5px; color: #138ea6;"></p>
+          <button type="button" class="Verify" onclick="verifyOtp()">Verify OTP</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="name">Your Name:</label>
+        <input type="text" id="name" name="Name" placeholder="Enter Your Name" required />
+      </div>
+      <div class="form-group">
+        <label for="guess">Your Guess:</label>
+        <input type="text" id="guess" name="Guess" placeholder="Enter Your Guess" required />
+      </div>
+      <button type="submit" id="submit-btn" disabled>Submit</button>
+      <p id="loading">Submitting Your Response, Please Wait...</p>
+    </form>
+  </div>
+
+  <label class="Create">ⓘ Created and Designed by: Ali Asger Gadi</label>
+
+  <script>
+    const verification = document.querySelector("#Verification")
+    const otpInput = document.querySelector("#otpInput")
+    const submitBtn = document.getElementById("submit-btn")
+    let realOtp = ""
+
+    async function sendOtp() {
+      const email = document.getElementById("email").value
+      if (!email) return
+      otpInput.style.display = "block"
+      verification.style.display = "block"
+      verification.textContent = "Sending OTP..."
+
+      const res = await fetch("http://localhost:3000/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      })
+
+      const data = await res.json()
+      realOtp = data.otp
+      verification.textContent = "OTP Sent To Your Mail"
+    }
+
+    function verifyOtp() {
+      const enteredOtp = otpInput.value
+      if (enteredOtp === realOtp) {
+        verification.textContent = "OTP Verification Successful"
+        verification.style.color = "green"
+        submitBtn.disabled = false
+      } else {
+        verification.textContent = "OTP Verification Failed"
+        verification.style.color = "red"
+        submitBtn.disabled = true
+      }
+    }
+
+    document.getElementById('survey-form').addEventListener('submit', async function (event) {
+      event.preventDefault()
+      document.getElementById('loading').style.display = 'block'
+
+      const form = event.target
+      const formData = new FormData(form)
+      const data = new URLSearchParams()
+      for (const pair of formData) data.append(pair[0], pair[1])
+
+      const response = await fetch('https://script.google.com/macros/s/AKfycbyyNEnATCeb-gsA5DqW4V1363iN6dG5MbwRS0kdhMI2QRma9uEShpmP1xXt9aTYDGDl/exec', {
+        method: 'POST',
+        body: data
+      })
+
+      document.getElementById('loading').style.display = 'none'
+      if (response.ok) window.location.href = "success.html"
+      else {
+        verification.style.display = "block"
+        verification.textContent = "Submission Failed. Try Again."
+        verification.style.color = "red"
+      }
+    })
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        document.getElementById('submit-btn').click()
+      }
+    })
+
+    document.addEventListener('contextmenu', e => e.preventDefault())
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'i')) {
+        e.preventDefault()
+      }
+    })
+  </script>
+</body>
+</html>
