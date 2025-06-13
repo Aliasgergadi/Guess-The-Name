@@ -178,10 +178,11 @@
   </div>
 
   <script>
-    // Redirect to login if not logged in
+
     if (localStorage.getItem("loggedIn") !== "yes") {
-      window.location.href = "./login.html";
-    }
+  window.location.href = "../../login.html";
+}
+
 
     const streamUrl = "https://level-parish-participate-nights.trycloudflare.com/hls/test.m3u8";
     document.getElementById("video").src = streamUrl;
@@ -227,7 +228,7 @@
 
     function logout() {
       localStorage.removeItem("loggedIn");
-      window.location.href = "login.html";
+      window.location.href = "../../login.html";
     }
   </script>
 </body>
