@@ -171,76 +171,126 @@
       color: #ff7cd3;
     }
 
-    @media (max-height: 700px) {
-      .container {
-        max-height: 95vh;
-        padding: 20px;
-      }
+    /* Popup Styles */
+    .popup-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
     }
 
-@media (max-width: 500px) {
-  body {
-    padding: 10px;
-  }
+    .popup-box {
+      background: white;
+      border-radius: 10px;
+      padding: 30px 25px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      font-family: "Comic Relief", sans-serif;
+      color: #333;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
 
-  .container {
-    padding: 20px;
-    max-width: 90%;
-    transform: none;
-  }
+    .popup-box h3 {
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
 
-  h2 {
-    font-size: 1.4rem;
-    margin-bottom: 15px;
-  }
+    .popup-box p {
+      font-size: 16px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
 
-  label {
-    font-size: 14px;
-    margin-bottom: 6px;
-  }
+    .popup-box button {
+      background-color: #138ea6;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 10px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
 
-  input[type="text"],
-  input[type="email"],
-  input[type="number"] {
-    padding: 12px;
-    font-size: 14px;
-  }
+    @media (max-width: 500px) {
+      body {
+        padding: 10px;
+      }
 
-  button {
-    padding: 12px;
-    font-size: 16px;
-  }
+      .container {
+        padding: 20px;
+        max-width: 90%;
+        transform: none;
+      }
 
-  .Otp-Verification .Send,
-  .Otp-Verification .Verify {
-    width: 100%;
-    margin: 8px 0;
-  }
+      h2 {
+        font-size: 1.4rem;
+        margin-bottom: 15px;
+      }
 
-  .Create {
-    font-size: 12px;
-    bottom: 10px;
-    left: 10px;
-  }
+      label {
+        font-size: 14px;
+        margin-bottom: 6px;
+      }
 
-  a {
-    font-size: 14px;
-    padding: 6px 12px;
-    top: 10px;
-    left: 10px;
-  }
+      input[type="text"],
+      input[type="email"],
+      input[type="number"] {
+        padding: 12px;
+        font-size: 14px;
+      }
 
-  .h {
-    top: 10px;
-    left: 130px;
-    font-size: 14px;
-  }
-}
+      button {
+        padding: 12px;
+        font-size: 16px;
+      }
 
+      .Otp-Verification .Send,
+      .Otp-Verification .Verify {
+        width: 100%;
+        margin: 8px 0;
+      }
+
+      .Create {
+        font-size: 12px;
+        bottom: 10px;
+        left: 10px;
+      }
+
+      a {
+        font-size: 14px;
+        padding: 6px 12px;
+        top: 10px;
+        left: 10px;
+      }
+
+      .h {
+        top: 10px;
+        left: 130px;
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
-
 <body>
+  <!-- Popup on Load -->
+  <div class="popup-overlay" id="popup">
+    <div class="popup-box">
+      <h3>⚠️ <b>Important</b></h3>
+      <p>Your email will be used as your login identity to access the live stream on the day of the ceremony.<br><br>
+        Please make sure you enter a valid and accessible email address.<br><br>
+        <b>Password Will Be Shared Before Chatti.</b>
+      </p>
+      <button onclick="document.getElementById('popup').style.display='none'">OK</button>
+    </div>
+  </div>
+
   <a href="nginx/html/index.html">Live View</a>
   <a href="/" class="h">Home</a>
 
@@ -348,6 +398,11 @@
         verification.style.color = "red"
       }
     })
+
+    // Auto show popup on page load
+    window.onload = () => {
+      document.getElementById('popup').style.display = 'flex'
+    }
   </script>
 </body>
 </html>
