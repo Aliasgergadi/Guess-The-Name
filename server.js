@@ -41,7 +41,7 @@ app.post('/send-otp', async (req, res) => {
 
 // Load HTML file from root when visiting /
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Guessing.html'))
+  res.sendFile(path.join(__dirname, 'index.html'))
 })
 
 app.listen(3000, () => {
