@@ -240,19 +240,36 @@
       verification.style.display = "block"
       verification.textContent = "Sending OTP..."
 
-      const res = await fetch("http://localhost:3000/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-      })
+      try {
+        const res = await fetch("https://wasd-mhev.onrender.com/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email })
+        })
 
-      const data = await res.json()
-      realOtp = data.otp
-      verification.textContent = "OTP Sent To Your Mail"
+        const data = await res.json()
+
+        if (res.ok && data.success) {
+          realOtp = data.otp
+          verification.textContent = "OTP Sent To Your Mail"
+          verification.style.color = "#138ea6"
+        } else {
+          verification.textContent = "Failed to send OTP"
+          verification.style.color = "red"
+        }
+      } catch (err) {
+        verification.textContent = "Server Error"
+        verification.style.color = "red"
+      }
     }
 
     function verifyOtp() {
       const enteredOtp = otpInput.value
+      if (!realOtp) {
+        verification.textContent = "Please send OTP first"
+        verification.style.color = "red"
+        return
+      }
       if (enteredOtp === realOtp) {
         verification.textContent = "OTP Verification Successful"
         verification.style.color = "green"
@@ -284,20 +301,6 @@
         verification.style.display = "block"
         verification.textContent = "Submission Failed. Try Again."
         verification.style.color = "red"
-      }
-    })
-
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        e.preventDefault()
-        document.getElementById('submit-btn').click()
-      }
-    })
-
-    document.addEventListener('contextmenu', e => e.preventDefault())
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'i')) {
-        e.preventDefault()
       }
     })
   </script>
