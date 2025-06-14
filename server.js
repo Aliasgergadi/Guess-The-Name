@@ -6,12 +6,20 @@ const cors = require('cors')
 const path = require('path')
 
 const app = express()
+const PORT = process.env.PORT || 3000
+
 app.use(cors())
 app.use(bodyParser.json())
 
-// Serve static files from root directory
-app.use(express.static(__dirname))
+// Serve static files from the root directory
+app.use(express.static(path.join(__dirname)))
 
+// Serve index.html at root route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'))
+})
+
+// OTP endpoint
 app.post('/send-otp', async (req, res) => {
   const { email } = req.body
   const otp = Math.floor(100000 + Math.random() * 900000).toString()
@@ -39,11 +47,6 @@ app.post('/send-otp', async (req, res) => {
   }
 })
 
-// Load HTML file from root when visiting /
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'))
-})
-
-app.listen(3000, () => {
-  console.log('Server running on port 3000')
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
 })
