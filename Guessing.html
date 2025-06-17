@@ -338,7 +338,7 @@
     }
   }
 
-  async function sendOtp() {
+async function sendOtp() {
   const email = document.getElementById("email").value;
   if (!email) return;
 
@@ -355,7 +355,6 @@
     return;
   }
 
-  // Now email is OK, continue to send OTP
   otpInput.style.display = "block";
   verification.textContent = "Sending OTP...";
   verification.style.color = "#138ea6";
@@ -367,12 +366,15 @@
       body: JSON.stringify({ email })
     });
     const data = await res.json();
+
+    // If server gives success → OTP sent
     if (res.ok && data.success) {
       realOtp = data.otp;
       verification.textContent = "OTP Sent To Your Mail";
       verification.style.color = "#138ea6";
     } else {
-      verification.textContent = "Email Already In Use";
+      // Ignore duplicate check from server
+      verification.textContent = "Failed to send OTP. Try again.";
       verification.style.color = "red";
     }
   } catch {
@@ -380,7 +382,6 @@
     verification.style.color = "red";
   }
 }
-
 
   function verifyOtp() {
     const enteredOtp = otpInput.value
