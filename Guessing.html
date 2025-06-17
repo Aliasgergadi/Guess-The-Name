@@ -322,87 +322,102 @@
 
   <label class="Create">ⓘ Created and Designed by: Ali Asger Gadi</label>
 
-  <script>
-    const verification = document.querySelector("#Verification")
-    const otpInput = document.querySelector("#otpInput")
-    const submitBtn = document.getElementById("submit-btn")
-    let realOtp = ""
+<script>
+  const verification = document.querySelector("#Verification")
+  const otpInput = document.querySelector("#otpInput")
+  const submitBtn = document.getElementById("submit-btn")
+  let realOtp = ""
 
-    async function sendOtp() {
-      const email = document.getElementById("email").value
-      if (!email) return
-      otpInput.style.display = "block"
-      verification.style.display = "block"
-      verification.textContent = "Sending OTP..."
+  async function checkEmailUsed(email) {
+    try {
+      const res = await fetch(`https://script.google.com/macros/s/AKfycbyyNEnATCeb-gsA5DqW4V1363iN6dG5MbwRS0kdhMI2QRma9uEShpmP1xXt9aTYDGDl/exec?check=${email}`)
+      const data = await res.json()
+      return data.exists
+    } catch {
+      return false
+    }
+  }
 
-      try {
-        const res = await fetch("https://wasd-mhev.onrender.com/send-otp", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email })
-        })
-
-        const data = await res.json()
-
-        if (res.ok && data.success) {
-          realOtp = data.otp
-          verification.textContent = "OTP Sent To Your Mail"
-          verification.style.color = "#138ea6"
-        } else {
-          verification.textContent = "Failed to send OTP"
-          verification.style.color = "red"
-        }
-      } catch (err) {
-        verification.textContent = "Server Error"
-        verification.style.color = "red"
-      }
+  async function sendOtp() {
+    const email = document.getElementById("email").value
+    if (!email) return
+    verification.style.display = "block"
+    verification.textContent = "Checking email..."
+    const alreadyUsed = await checkEmailUsed(email)
+    if (alreadyUsed) {
+      verification.textContent = "Email Already Used"
+      verification.style.color = "red"
+      otpInput.style.display = "none"
+      submitBtn.disabled = true
+      return
     }
 
-    function verifyOtp() {
-      const enteredOtp = otpInput.value
-      if (!realOtp) {
-        verification.textContent = "Please send OTP first"
-        verification.style.color = "red"
-        return
-      }
-      if (enteredOtp === realOtp) {
-        verification.textContent = "OTP Verification Successful"
-        verification.style.color = "green"
-        submitBtn.disabled = false
-      } else {
-        verification.textContent = "OTP Verification Failed"
-        verification.style.color = "red"
-        submitBtn.disabled = true
-      }
-    }
+    otpInput.style.display = "block"
+    verification.textContent = "Sending OTP..."
 
-    document.getElementById('survey-form').addEventListener('submit', async function (event) {
-      event.preventDefault()
-      document.getElementById('loading').style.display = 'block'
-
-      const form = event.target
-      const formData = new FormData(form)
-      const data = new URLSearchParams()
-      for (const pair of formData) data.append(pair[0], pair[1])
-
-      const response = await fetch('https://script.google.com/macros/s/AKfycbyyNEnATCeb-gsA5DqW4V1363iN6dG5MbwRS0kdhMI2QRma9uEShpmP1xXt9aTYDGDl/exec', {
-        method: 'POST',
-        body: data
+    try {
+      const res = await fetch("https://guess-the-name.onrender.com/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
       })
-
-      document.getElementById('loading').style.display = 'none'
-      if (response.ok) window.location.href = "success.html"
-      else {
-        verification.style.display = "block"
-        verification.textContent = "Submission Failed. Try Again."
+      const data = await res.json()
+      if (res.ok && data.success) {
+        realOtp = data.otp
+        verification.textContent = "OTP Sent To Your Mail"
+        verification.style.color = "#138ea6"
+      } else {
+        verification.textContent = "Failed to send OTP"
         verification.style.color = "red"
       }
-    })
-
-    // Auto show popup on page load
-    window.onload = () => {
-      document.getElementById('popup').style.display = 'flex'
+    } catch {
+      verification.textContent = "Server Error"
+      verification.style.color = "red"
     }
-  </script>
+  }
+
+  function verifyOtp() {
+    const enteredOtp = otpInput.value
+    if (!realOtp) {
+      verification.textContent = "Please send OTP first"
+      verification.style.color = "red"
+      return
+    }
+    if (enteredOtp === realOtp) {
+      verification.textContent = "OTP Verification Successful"
+      verification.style.color = "green"
+      submitBtn.disabled = false
+    } else {
+      verification.textContent = "OTP Verification Failed"
+      verification.style.color = "red"
+      submitBtn.disabled = true
+    }
+  }
+
+  document.getElementById('survey-form').addEventListener('submit', async function (event) {
+    event.preventDefault()
+    document.getElementById('loading').style.display = 'block'
+    const form = event.target
+    const formData = new FormData(form)
+    const data = new URLSearchParams()
+    for (const pair of formData) data.append(pair[0], pair[1])
+    const response = await fetch('https://script.google.com/macros/s/AKfycbyyNEnATCeb-gsA5DqW4V1363iN6dG5MbwRS0kdhMI2QRma9uEShpmP1xXt9aTYDGDl/exec', {
+      method: 'POST',
+      body: data
+    })
+    document.getElementById('loading').style.display = 'none'
+    if (response.ok) window.location.href = "success.html"
+    else {
+      verification.style.display = "block"
+      verification.textContent = "Submission Failed. Try Again."
+      verification.style.color = "red"
+    }
+  })
+
+  window.onload = () => {
+    document.getElementById('popup').style.display = 'flex'
+  }
+</script>
+
 </body>
 </html>
