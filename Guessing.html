@@ -339,43 +339,48 @@
   }
 
   async function sendOtp() {
-    const email = document.getElementById("email").value
-    if (!email) return
-    verification.style.display = "block"
-    verification.textContent = "Checking email..."
-    const alreadyUsed = await checkEmailUsed(email)
-    if (alreadyUsed) {
-      verification.textContent = "Email Already Used"
-      verification.style.color = "red"
-      otpInput.style.display = "none"
-      submitBtn.disabled = true
-      return
-    }
+  const email = document.getElementById("email").value;
+  if (!email) return;
 
-    otpInput.style.display = "block"
-    verification.textContent = "Sending OTP..."
-    verification.style.color = "#138ea6"
+  verification.style.display = "block";
+  verification.textContent = "Checking email...";
+  verification.style.color = "#138ea6";
 
-    try {
-      const res = await fetch("https://guess-the-name.onrender.com/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-      })
-      const data = await res.json()
-      if (res.ok && data.success) {
-        realOtp = data.otp
-        verification.textContent = "OTP Sent To Your Mail"
-        verification.style.color = "#138ea6"
-      } else {
-        verification.textContent = "Email Already In Use"
-        verification.style.color = "red"
-      }
-    } catch {
-      verification.textContent = "Server Error"
-      verification.style.color = "red"
-    }
+  const alreadyUsed = await checkEmailUsed(email);
+  if (alreadyUsed) {
+    verification.textContent = "Email Already Used";
+    verification.style.color = "red";
+    otpInput.style.display = "none";
+    submitBtn.disabled = true;
+    return;
   }
+
+  // Now email is OK, continue to send OTP
+  otpInput.style.display = "block";
+  verification.textContent = "Sending OTP...";
+  verification.style.color = "#138ea6";
+
+  try {
+    const res = await fetch("https://guess-the-name.onrender.com/send-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      realOtp = data.otp;
+      verification.textContent = "OTP Sent To Your Mail";
+      verification.style.color = "#138ea6";
+    } else {
+      verification.textContent = "Email Already In Use";
+      verification.style.color = "red";
+    }
+  } catch {
+    verification.textContent = "Server Error";
+    verification.style.color = "red";
+  }
+}
+
 
   function verifyOtp() {
     const enteredOtp = otpInput.value
