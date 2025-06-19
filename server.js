@@ -1,24 +1,23 @@
-require('dotenv').config()
-const express = require('express')
-const nodemailer = require('nodemailer')
-const bodyParser = require('body-parser')
-const cors = require('cors')
-const path = require('path')
+require('dotenv').config();
+const express = require('express');
+const nodemailer = require('nodemailer');
+const cors = require('cors');
+const path = require('path');
 
-const app = express()
-const PORT = process.env.PORT || 3000
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-app.use(cors())
-app.use(bodyParser.json())
-app.use(express.static(path.join(__dirname)))
+app.use(cors());
+app.use(express.json()); // ✅ Required to parse JSON request bodies
+app.use(express.static(path.join(__dirname)));
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'))
-})
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 app.post('/send-otp', async (req, res) => {
-  const { email } = req.body
-  const otp = Math.floor(100000 + Math.random() * 900000).toString()
+  const { email } = req.body;
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   try {
     const transporter = nodemailer.createTransport({
@@ -27,7 +26,7 @@ app.post('/send-otp', async (req, res) => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       }
-    })
+    });
 
     const htmlTemplate = `
       <div style="font-family:Segoe UI, sans-serif; padding:20px; max-width:600px; margin:auto;">
@@ -37,25 +36,25 @@ app.post('/send-otp', async (req, res) => {
         <p style="font-size:18px; margin:20px 0; font-weight:bold;">Here is your OTP: <span style="color:black;">${otp}</span></p>
         <p style="font-size:16px;">If you did not request this OTP or believe this was sent by mistake, you can safely ignore this email.</p>
         <p style="margin-top:40px;">Thanks,<br/>The Guess The Name Team</p>
-        <hr style="margin-top:40px;"/>
+        <hr style="margin-top:40px;" />
         <p style="font-size:12px; color:gray;">This is an automated message. Please do not reply directly to this email.</p>
       </div>
-    `
+    `;
 
     await transporter.sendMail({
       from: `Guess The Name <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Your OTP for Guess The Name',
       html: htmlTemplate
-    })
+    });
 
-    res.json({ success: true, otp })
+    res.json({ success: true, otp });
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ success: false, error: "Email failed" })
+    console.error("OTP Error:", error);
+    res.status(500).json({ success: false, error: error.message });
   }
-})
+});
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+  console.log(`Server running on port ${PORT}`);
+});
