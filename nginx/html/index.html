@@ -202,6 +202,13 @@
     </div>
     <p style="color: #000;">Link To Stream: <span id="url"></span></p>
   </div>
+<div style="margin-top: 30px; width: 100%; max-width: 900px;">
+  <div id="messages" style="background: #fff; color: #000; padding: 10px; border-radius: 10px; max-height: 200px; overflow-y: auto; font-size: 14px;"></div>
+  <div style="display: flex; margin-top: 10px;">
+    <input id="chat-input" type="text" placeholder="Type a message..." style="flex: 1; padding: 10px; border-radius: 8px 0 0 8px; border: none; font-size: 14px;" />
+    <button id="chat-send" class="btn" style="border-radius: 0 8px 8px 0;">Send</button>
+  </div>
+</div>
 
   <script>
   if (localStorage.getItem("loggedIn") !== "yes") {
