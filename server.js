@@ -3,14 +3,25 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
 const path = require('path');
+const http = require('http');
+const { Server } = require('socket.io');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json()); // ✅ Required to parse JSON request bodies
+app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
+// Create HTTP server and Socket.IO instance
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*'
+  }
+});
+
+// Routes
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -55,6 +66,20 @@ app.post('/send-otp', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+// Socket.IO Chat functionality
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+
+  socket.on('chat message', (msg) => {
+    io.emit('chat message', msg);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+});
+
+// Start the server
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
