@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Feedback</title>
+  <link rel="icon" type="image/x-icon" href="Guess The Name logo.ico">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&display=swap');
+
+    @font-face {
+      font-family: "AL-KANZ Medium";
+      src: url("AILERON-THIN.OTF");
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Comic Relief', sans-serif;
+      background: linear-gradient(135deg, #a2c2e5, #f1f8ff);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+
+    .title {
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      color: #333;
+      background: white;
+      padding: 10px 30px;
+      border-radius: 10px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin: 15px 0 5px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      font-family: "Comic Relief", sans-serif;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #ff7cd3;
+      transform: scale(1.02);
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 15px 30px;
+      font-size: 16px;
+      background: #138ea6;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #ff7cd3;
+    }
+
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="title">✨ What features would you like to see next? What Do You Think About Our Website</div>
+
+  <div class="container">
+    <h2>Leave Your Feedback</h2>
+    <form id="feedback-form">
+      <label for="name">Your Name (Optional)</label>
+      <input type="text" id="name" name="Name">
+
+      <label for="message">Your Feedback</label>
+      <textarea id="message" name="Feedback" rows="5" required></textarea>
+
+      <button type="submit">Submit</button>
+      <div class="message" id="responseMsg"></div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('feedback-form');
+    const msg = document.getElementById('responseMsg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = "Submitting...";
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData);
+
+      try {
+        await fetch('https://script.google.com/macros/s/AKfycbybOz5zQfklGcMfy6354FFL8OC76SbT3zGodoncEs0Y5IaSBZdiIxuTjIEk7fsLzEkBUw/exec', {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        msg.textContent = "Thank you for your feedback!";
+        form.reset();
+      } catch (error) {
+        msg.textContent = "Something went wrong. Try again.";
+      }
+    });
+  </script>
+
+</body>
+</html>

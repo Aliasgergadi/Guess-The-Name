@@ -1,30 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Form Submitted Successfully</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&display=swap');
+
     @font-face {
-      font-family: heading;
+      font-family: "heading";
       src: url('AILERON-THIN.OTF');
     }
 
     body {
-      font-family: "heading", sans-serif;
+      font-family: "heading";
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-direction: column;
       height: 100vh;
       margin: 0;
       background: linear-gradient(135deg, #a2c2e5, #f1f8ff);
       color: #333;
-    }
-
-    .container {
       text-align: center;
       padding: 20px;
-      max-width: 500px;
     }
 
     h2 {
@@ -36,7 +36,8 @@
     p {
       font-size: 18px;
       line-height: 1.5;
-      font-weight:900;
+      font-weight: 900;
+      max-width: 600px;
     }
 
     button {
@@ -54,65 +55,81 @@
     button:hover {
       background-color: rgb(237, 237, 237);
     }
+
     .Create {
       font-family: "heading";
       font-size: 15px;
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
       color: #888;
+      margin-top: 40px;
     }
-     @media (min-width: 769px){
-      h2 {
-        font-size: 120px;
-      }
 
-      p {
-        font-size: 30px;
-        width: 150%;
-        position:relative;
-        left:-100px;
-      }
-      button{
-          font-size:25px;
+    a.a {
+      font-family: "heading";
+      text-decoration: none;
+      padding: 20px 50px;
+      font-size: 22px;
+      color: #fff;
+      background: linear-gradient(135deg, #6a1b9a, #8e24aa);
+      border: none;
+      border-radius: 25px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: background 0.3s ease-in-out, transform 0.2s, box-shadow 0.3s ease-in-out;
+      margin-bottom: 40px;
+      display: inline-block;
+    }
 
-      }
-     }
+    a.a:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
 
-    @media (max-width: 768px) {
+    @media (min-width: 769px) {
       h2 {
         font-size: 60px;
       }
 
       p {
+        font-size: 24px;
+      }
+
+      button {
         font-size: 20px;
       }
-      button{
-          font-size:15px;
+
+      a.a {
+        font-size: 26px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      h2 {
+        font-size: 40px;
+      }
+
+      p {
+        font-size: 18px;
+      }
+
+      button {
+        font-size: 16px;
+      }
+
+      a.a {
+        font-size: 20px;
+        padding: 15px 35px;
       }
     }
   </style>
 </head>
+
 <body>
-  <div class="container">
-
-    <p>
-      Thank you for being part of this special moment and for your thoughtful name suggestion.  
-      We truly appreciate your participation. The winning entry will be awarded with a special gift on the day of Chatti!
-    </p>
-    <button onclick="window.location.href='Guessing.html';">Submit Again</button>
-      <label class="Create">ⓘ Created and Designed by: Ali Asger Gadi</label>
-  </div>
-
-  <!-- <script>
-    document.addEventListener('contextmenu', function(e) {
-      e.preventDefault();
-    });
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-        e.preventDefault();
-      }
-    }); -->
-  </script>
+  <a class="a" href="feedback.html">FEED BACK</a>
+  <p>
+    Thank you for being part of this special moment and for your thoughtful name suggestion.
+    We truly appreciate your participation. The winning entry will be awarded with a special gift on the day of Chatti!
+  </p>
+  <button onclick="window.location.href='Guessing.html';">Submit Again</button>
+  <label class="Create">ⓘ Created and Designed by: Ali Asger Gadi</label>
 </body>
+
 </html>

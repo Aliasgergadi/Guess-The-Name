@@ -10,27 +10,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-const rateLimit = require('express-rate-limit');
-
-// Limit OTP requests: 5 per IP every 10 minutes
-const otpLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 5, // limit each IP to 5 requests per window
-  message: {
-    success: false,
-    error: 'Too many OTP requests. Please try again later.'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Apply the limiter to the OTP route only
-app.post('/send-otp', otpLimiter, async (req, res) => {
-  const { email } = req.body;
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  ...
-});
-
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
