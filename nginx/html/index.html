@@ -210,68 +210,6 @@
   </div>
 </div>
 
-  <script>
-  if (localStorage.getItem("loggedIn") !== "yes") {
-    window.location.href = "../../LoginPage.html";
-  }
-
-  const streamUrl = "https://biological-stakeholders-river-reprint.trycloudflare.com/hls/test.m3u8";
-  const video = document.getElementById("video");
-
-  if (Hls.isSupported()) {
-    const hls = new Hls();
-    hls.loadSource(streamUrl);
-    hls.attachMedia(video);
-  } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-    video.src = streamUrl;
-  } else {
-    alert("Your browser does not support HLS.");
-  }
-
-  const watchBtn = document.getElementById("watchBtn");
-  const videoPopup = document.getElementById("videoPopup");
-  const devicePopup = document.getElementById("devicePopup");
-
-  if (window.innerWidth > 1024) {
-    watchBtn.addEventListener("click", () => {
-      videoPopup.style.display = "block";
-      document.getElementById("popupVideo").src = "https://guess-the-name.onrender.com/nginx/html/0612%20(1).mp4";
-    });
-  } else {
-    watchBtn.addEventListener("click", () => {
-      devicePopup.style.display = "block";
-    });
-  }
-
-  document.getElementById("iphonePopupBtn").addEventListener("click", () => {
-    document.getElementById("iphonePopup").style.display = "block";
-    document.getElementById("iphoneVideo").src = "https://guess-the-name.onrender.com/nginx/html/0612%20(2).mp4";
-  });
-
-  document.getElementById("androidPopupBtn").addEventListener("click", () => {
-    document.getElementById("androidPopup").style.display = "block";
-    document.getElementById("androidVideo").src = "https://android-specific-video-url.com";
-  });
-
-  document.querySelectorAll(".modal").forEach(modal => {
-    modal.addEventListener("click", event => {
-      if (event.target === modal) {
-        modal.style.display = "none";
-      }
-    });
-  });
-
-  document.querySelectorAll(".close").forEach(btn => {
-    btn.addEventListener("click", function () {
-      this.parentElement.parentElement.style.display = "none";
-    });
-  });
-
-  function logout() {
-    localStorage.removeItem("loggedIn");
-    window.location.href = "../../LoginPage.html";
-  }
-</script>
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
   const socket = io("https://guess-the-name.onrender.com"); // change if deployed somewhere else
@@ -280,16 +218,31 @@
   const sendBtn = document.getElementById("chat-send");
   const messages = document.getElementById("messages");
 
-  sendBtn.onclick = () => {
-    if (input.value.trim()) {
-      socket.emit("chat message", input.value.trim());
+  function sendMessage() {
+    const message = input.value.trim();
+    const userName = localStorage.getItem("userName") || "Anonymous";
+
+    if (message) {
+      socket.emit("chat message", {
+        name: userName,
+        text: message
+      });
       input.value = "";
     }
-  };
+  }
+
+  sendBtn.onclick = sendMessage;
+
+  // ✅ Enter key to send
+  input.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      sendMessage();
+    }
+  });
 
   socket.on("chat message", (msg) => {
     const div = document.createElement("div");
-    div.textContent = msg;
+    div.textContent = `${msg.name}: ${msg.text}`;
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
   });
