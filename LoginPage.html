@@ -45,18 +45,30 @@
 </head>
 <body>
   <div class="login-box">
-    <h2>Login with Email</h2>
+    <h2>Login</h2>
     <input type="email" id="emailInput" placeholder="Enter your email" />
+    <input type="password" id="passwordInput" placeholder="Enter password (Hint: Ceremony)" />
     <button onclick="login()">Login</button>
     <p id="loginStatus"></p>
   </div>
 
   <script>
-    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/YOUR_SHEET_ID/pub?output=csv'; // Replace with your actual sheet CSV URL
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR3AG0oNKiIAa88c0SH-tn54-rKt24AQYu95tZb2TbxdAEZsF86ltXQXB7Km3DMSkZvSR280RIDrTYg/pub?output=csv'; 
+    const REQUIRED_PASSWORD = 'Ceremony';
 
     function login() {
       const email = document.getElementById('emailInput').value.trim().toLowerCase();
-      if (!email) return alert("Please enter your email");
+      const password = document.getElementById('passwordInput').value.trim();
+
+      if (!email || !password) {
+        alert("Please enter both email and password.");
+        return;
+      }
+
+      if (password !== REQUIRED_PASSWORD) {
+        document.getElementById('loginStatus').innerText = "Incorrect password.";
+        return;
+      }
 
       Papa.parse(SHEET_URL, {
         download: true,
@@ -64,6 +76,7 @@
         complete: function(results) {
           const users = results.data;
           const user = users.find(u => u.Email && u.Email.toLowerCase() === email);
+
           if (user) {
             localStorage.setItem("userEmail", user.Email);
             localStorage.setItem("userName", user.Name);
@@ -72,6 +85,10 @@
           } else {
             document.getElementById('loginStatus').innerText = "Email not found. Please submit the form first.";
           }
+        },
+        error: function(err) {
+          console.error("CSV Fetch Error:", err);
+          document.getElementById('loginStatus').innerText = "Failed to load login data.";
         }
       });
     }
