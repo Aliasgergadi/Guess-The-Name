@@ -40,6 +40,27 @@
       background-color: #4CAF50;
       color: white;
       font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+    button:disabled {
+      background-color: #95d6a4;
+      cursor: not-allowed;
+    }
+    .spinner {
+      border: 2px solid white;
+      border-top: 2px solid #4CAF50;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -48,17 +69,19 @@
     <h2>Login</h2>
     <input type="email" id="emailInput" placeholder="Enter your email" />
     <input type="password" id="passwordInput" placeholder="Enter password" />
-    <button onclick="login()">Login</button>
+    <button id="loginBtn" onclick="login()">Login</button>
     <p id="loginStatus"></p>
   </div>
 
   <script>
-    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTxwuE4b27LHQg4x4HWpq2Ic7_FpApG_UjlxmJwo5NhGzhm7vmqsm1I5BYEsPFS0jcPMszGBX11vYt9/pub?output=csv'; 
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTxwuE4b27LHQg4x4HWpq2Ic7_FpApG_UjlxmJwo5NhGzhm7vmqsm1I5BYEsPFS0jcPMszGBX11vYt9/pub?output=csv';
     const REQUIRED_PASSWORD = 'Ceremony';
 
     function login() {
       const email = document.getElementById('emailInput').value.trim().toLowerCase();
       const password = document.getElementById('passwordInput').value.trim();
+      const loginBtn = document.getElementById('loginBtn');
+      const statusEl = document.getElementById('loginStatus');
 
       if (!email || !password) {
         alert("Please enter both email and password.");
@@ -66,9 +89,14 @@
       }
 
       if (password !== REQUIRED_PASSWORD) {
-        document.getElementById('loginStatus').innerText = "Incorrect password.";
+        statusEl.innerText = "Incorrect password.";
         return;
       }
+
+      // Visually indicate the button is clicked
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = 'Verifying <span class="spinner"></span>';
+      statusEl.innerText = "Verifying...";
 
       Papa.parse(SHEET_URL, {
         download: true,
@@ -80,15 +108,19 @@
           if (user) {
             localStorage.setItem("userEmail", user.Email);
             localStorage.setItem("userName", user.Name);
-            document.getElementById('loginStatus').innerText = `Welcome, ${user.Name}! Redirecting...`;
-            setTimeout(() => window.location.href = "index.html", 1500);
+            statusEl.innerText = `Welcome, ${user.Name}! Redirecting...`;
+            setTimeout(() => window.location.href = "nginx/html/index.html", 1000);
           } else {
-            document.getElementById('loginStatus').innerText = "Email not found. Please submit the form first.";
+            statusEl.innerText = "Email not found. Please submit the form first.";
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = 'Login';
           }
         },
         error: function(err) {
           console.error("CSV Fetch Error:", err);
-          document.getElementById('loginStatus').innerText = "Failed to load login data.";
+          statusEl.innerText = "Failed to load login data.";
+          loginBtn.disabled = false;
+          loginBtn.innerHTML = 'Login';
         }
       });
     }
