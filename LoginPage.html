@@ -35,6 +35,7 @@
       width: 90%;
       border-radius: 10px;
       border: 1px solid #aaa;
+      font-size: 14px;
     }
     button {
       background-color: #4CAF50;
@@ -93,7 +94,7 @@
         return;
       }
 
-      // Visually indicate the button is clicked
+      // Show loading animation
       loginBtn.disabled = true;
       loginBtn.innerHTML = 'Verifying <span class="spinner"></span>';
       statusEl.innerText = "Verifying...";
@@ -108,6 +109,7 @@
           if (user) {
             localStorage.setItem("userEmail", user.Email);
             localStorage.setItem("userName", user.Name);
+            localStorage.setItem("loggedIn", "yes"); // ✅ Important line
             statusEl.innerText = `Welcome, ${user.Name}! Redirecting...`;
             setTimeout(() => window.location.href = "nginx/html/index.html", 1000);
           } else {
