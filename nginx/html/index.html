@@ -212,6 +212,9 @@
 
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <script>
+    if (localStorage.getItem("loggedIn") !== "yes") {
+    window.location.href = "../../LoginPage.html"; // ✅ Redirect to login if not logged in
+  }
   const socket = io("https://guess-the-name.onrender.com"); // change if deployed somewhere else
 
   const input = document.getElementById("chat-input");
