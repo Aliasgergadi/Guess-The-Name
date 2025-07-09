@@ -9,27 +9,27 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ CORS for Netlify frontend
+// OTP in-memory store
+const otpStore = new Map();
+
+// CORS for Netlify frontend
 app.use(cors({
-  origin: ['https://strong-pixie-f97079.netlify.app'], // Replace with your actual Netlify domain (no trailing slash)
+  origin: ['https://strong-pixie-f97079.netlify.app'], // Replace with your Netlify domain
   methods: ['GET', 'POST'],
 }));
 
-// ✅ Middleware
 app.use(express.json());
 
-// ✅ Rate limiter for OTP requests
+// Rate limit OTP requests
 const otpLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
+  windowMs: 10 * 60 * 1000,
   max: 3,
-  message: { success: false, error: "Too many OTP requests. Try again after 10 minutes." }
+  message: { success: false, error: "Too many OTP requests. Try again later." }
 });
 
-// ✅ Send OTP route
+// Route: send OTP
 app.post('/send-otp', otpLimiter, async (req, res) => {
   const { email } = req.body;
-
-  // Generate 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   try {
@@ -42,16 +42,9 @@ app.post('/send-otp', otpLimiter, async (req, res) => {
     });
 
     const htmlTemplate = `
-      <div style="font-family:Segoe UI, sans-serif; padding:20px; max-width:600px; margin:auto;">
-        <h2 style="color:#0078d4;">Guess The Name - OTP Verification</h2>
-        <p style="font-size:16px;">You're receiving this email because someone (hopefully you) is trying to verify their email address on the <strong>Guess The Name</strong> website.</p>
-        <p style="font-size:16px;">Please use the code below to verify your email address and complete the submission process.</p>
-        <p style="font-size:18px; margin:20px 0; font-weight:bold;">Your OTP: <span style="color:black;">${otp}</span></p>
-        <p style="font-size:16px;">If you did not request this OTP or believe this was sent by mistake, you can safely ignore this email.</p>
-        <p style="margin-top:40px;">Thanks,<br/>The Guess The Name Team</p>
-        <hr style="margin-top:40px;" />
-        <p style="font-size:12px; color:gray;">This is an automated message. Please do not reply directly to this email.</p>
-      </div>
+      <h2>Guess The Name - OTP Verification</h2>
+      <p>Your OTP is:</p>
+      <h1>${otp}</h1>
     `;
 
     await transporter.sendMail({
@@ -61,48 +54,52 @@ app.post('/send-otp', otpLimiter, async (req, res) => {
       html: htmlTemplate,
     });
 
+    otpStore.set(email, {
+      otp,
+      expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes
+    });
+
     res.json({ success: true });
 
   } catch (error) {
     console.error("OTP Error:", error);
-    res.status(500).json({ success: false, error: "Failed to send OTP. Please try again later." });
+    res.status(500).json({ success: false, error: "Failed to send OTP." });
   }
 });
 
-// ✅ Basic root route
+// Route: verify OTP
+app.post('/verify-otp', (req, res) => {
+  const { email, otp } = req.body;
+  const record = otpStore.get(email);
+
+  if (!record) return res.status(400).json({ success: false, error: "No OTP found." });
+  if (Date.now() > record.expiresAt) {
+    otpStore.delete(email);
+    return res.status(400).json({ success: false, error: "OTP expired." });
+  }
+  if (record.otp !== otp) return res.status(400).json({ success: false, error: "Invalid OTP." });
+
+  otpStore.delete(email);
+  res.json({ success: true });
+});
+
+// Root test
 app.get('/', (req, res) => {
-  res.send('🎉 Guess The Name backend is running!');
+  res.send("🎉 Backend is running.");
 });
 
-// ✅ Optional: Health check route
-app.get('/health', (req, res) => {
-  res.send({ status: 'ok' });
-});
-
-// ✅ Create HTTP server & Socket.IO
+// Setup Socket.IO
 const server = http.createServer(app);
-
 const io = new Server(server, {
-  cors: {
-    origin: 'https://strong-pixie-f97079.netlify.app', // Replace with your frontend
-    methods: ['GET', 'POST']
-  }
+  cors: { origin: 'https://strong-pixie-f97079.netlify.app' }
 });
 
-// ✅ Socket.IO Chat
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
-
-  socket.on('chat message', (msg) => {
-    io.emit('chat message', msg); // Broadcast message
-  });
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-  });
+  socket.on('chat message', (msg) => io.emit('chat message', msg));
+  socket.on('disconnect', () => console.log('User disconnected:', socket.id));
 });
 
-// ✅ Start server
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
