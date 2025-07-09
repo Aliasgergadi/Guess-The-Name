@@ -14,7 +14,7 @@ const otpStore = new Map();
 
 // CORS for Netlify frontend
 app.use(cors({
-  origin: ['https://strong-pixie-f97079.netlify.app'], // Replace with your Netlify domain
+  origin: ['https://guessthename.infinityfreeapp.com'], // Replace with your Netlify domain
   methods: ['GET', 'POST'],
 }));
 
