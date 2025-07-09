@@ -1,6 +1,4 @@
-// Load environment variables from .env
 require('dotenv').config();
-
 const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
@@ -11,25 +9,27 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ Set allowed frontend origin for CORS
+// ✅ CORS for Netlify frontend
 app.use(cors({
-  origin: ['https://strong-pixie-f97079.netlify.app/'], // 🔁 Replace with your Netlify domain
+  origin: ['https://strong-pixie-f97079.netlify.app'], // Replace with your actual Netlify domain (no trailing slash)
   methods: ['GET', 'POST'],
 }));
 
 // ✅ Middleware
 app.use(express.json());
 
-// ✅ Rate limiter for OTP requests: max 3 per 10 minutes per IP
+// ✅ Rate limiter for OTP requests
 const otpLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000,
+  windowMs: 10 * 60 * 1000, // 10 minutes
   max: 3,
   message: { success: false, error: "Too many OTP requests. Try again after 10 minutes." }
 });
 
-// ✅ API route: Send OTP to email
+// ✅ Send OTP route
 app.post('/send-otp', otpLimiter, async (req, res) => {
   const { email } = req.body;
+
+  // Generate 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   try {
@@ -69,20 +69,32 @@ app.post('/send-otp', otpLimiter, async (req, res) => {
   }
 });
 
-// ✅ Create HTTP server and Socket.IO instance
+// ✅ Basic root route
+app.get('/', (req, res) => {
+  res.send('🎉 Guess The Name backend is running!');
+});
+
+// ✅ Optional: Health check route
+app.get('/health', (req, res) => {
+  res.send({ status: 'ok' });
+});
+
+// ✅ Create HTTP server & Socket.IO
 const server = http.createServer(app);
+
 const io = new Server(server, {
   cors: {
-    origin: '*', // OR restrict to frontend if needed
+    origin: 'https://strong-pixie-f97079.netlify.app', // Replace with your frontend
+    methods: ['GET', 'POST']
   }
 });
 
-// ✅ Real-time chat
+// ✅ Socket.IO Chat
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
   socket.on('chat message', (msg) => {
-    io.emit('chat message', msg);
+    io.emit('chat message', msg); // Broadcast message
   });
 
   socket.on('disconnect', () => {
