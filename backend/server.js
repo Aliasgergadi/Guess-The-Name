@@ -1,8 +1,9 @@
+// Load environment variables from .env
 require('dotenv').config();
+
 const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
-const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
 const rateLimit = require('express-rate-limit');
@@ -10,36 +11,25 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
+// ✅ Set allowed frontend origin for CORS
+app.use(cors({
+  origin: ['https://strong-pixie-f97079.netlify.app/'], // 🔁 Replace with your Netlify domain
+  methods: ['GET', 'POST'],
+}));
+
+// ✅ Middleware
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
 
-// Create HTTP server and Socket.IO instance
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: '*',
-  }
-});
-
-// Rate limiter for OTP route: max 3 requests per 10 minutes per IP
+// ✅ Rate limiter for OTP requests: max 3 per 10 minutes per IP
 const otpLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 3, // Limit each IP to 3 OTP requests
+  windowMs: 10 * 60 * 1000,
+  max: 3,
   message: { success: false, error: "Too many OTP requests. Try again after 10 minutes." }
 });
 
-// Routes
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// OTP email route (with rate limiter)
+// ✅ API route: Send OTP to email
 app.post('/send-otp', otpLimiter, async (req, res) => {
   const { email } = req.body;
-
-  // Generate 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   try {
@@ -71,7 +61,6 @@ app.post('/send-otp', otpLimiter, async (req, res) => {
       html: htmlTemplate,
     });
 
-    // NOTE: Do NOT return OTP in response for security reasons
     res.json({ success: true });
 
   } catch (error) {
@@ -80,12 +69,20 @@ app.post('/send-otp', otpLimiter, async (req, res) => {
   }
 });
 
-// Socket.IO Chat functionality
+// ✅ Create HTTP server and Socket.IO instance
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*', // OR restrict to frontend if needed
+  }
+});
+
+// ✅ Real-time chat
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
   socket.on('chat message', (msg) => {
-    io.emit('chat message', msg); // Broadcast to all clients
+    io.emit('chat message', msg);
   });
 
   socket.on('disconnect', () => {
@@ -93,7 +90,7 @@ io.on('connection', (socket) => {
   });
 });
 
-// Start the server
+// ✅ Start server
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
