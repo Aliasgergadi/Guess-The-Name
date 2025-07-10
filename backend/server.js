@@ -41,11 +41,16 @@ app.post('/send-otp', otpLimiter, async (req, res) => {
       }
     });
 
-    const htmlTemplate = `
-      <h2>Guess The Name - OTP Verification</h2>
-      <p>Your OTP is:</p>
-      <h1>${otp}</h1>
-    `;
+const htmlTemplate = `
+  <div style="font-family:Arial,sans-serif; background-color:#f9f9f9; padding:20px; border-radius:10px;">
+    <h2 style="color:#138ea6;">👶 Guess The Name - OTP Verification</h2>
+    <p style="font-size:16px;">Your One-Time Password (OTP) is:</p>
+    <div style="font-size:36px; font-weight:bold; color:#ff7cd3; margin:20px 0;">${otp}</div>
+    <p style="font-size:14px; color:#666;">This OTP is valid for 10 minutes.</p>
+    <br />
+    <p style="font-size:13px; color:#999;">If you did not request this, please ignore this email.</p>
+  </div>
+`;
 
     await transporter.sendMail({
       from: `Guess The Name <${process.env.EMAIL_USER}>`,
