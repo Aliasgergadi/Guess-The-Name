@@ -8,26 +8,23 @@ const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// OTP in-memory store
 const otpStore = new Map();
 
-// CORS for Netlify frontend
+// CORS
 app.use(cors({
-  origin: ['https://guessthename.infinityfreeapp.com'], // Replace with your Netlify domain
+  origin: ['https://guessthename.infinityfreeapp.com'], // ✅ Your frontend domain
   methods: ['GET', 'POST'],
 }));
-
 app.use(express.json());
 
-// Rate limit OTP requests
+// Rate limiter for OTP
 const otpLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 3,
   message: { success: false, error: "Too many OTP requests. Try again later." }
 });
 
-// Route: send OTP
+// SEND OTP
 app.post('/send-otp', otpLimiter, async (req, res) => {
   const { email } = req.body;
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -41,16 +38,15 @@ app.post('/send-otp', otpLimiter, async (req, res) => {
       }
     });
 
-const htmlTemplate = `
-  <div style="font-family:Arial,sans-serif; background-color:#f9f9f9; padding:20px; border-radius:10px;">
-    <h2 style="color:#138ea6;">👶 Guess The Name - OTP Verification</h2>
-    <p style="font-size:16px;">Your One-Time Password (OTP) is:</p>
-    <div style="font-size:36px; font-weight:bold; color:#ff7cd3; margin:20px 0;">${otp}</div>
-    <p style="font-size:14px; color:#666;">This OTP is valid for 10 minutes.</p>
-    <br />
-    <p style="font-size:13px; color:#999;">If you did not request this, please ignore this email.</p>
-  </div>
-`;
+    const htmlTemplate = `
+      <div style="font-family:Arial,sans-serif; background-color:#f9f9f9; padding:20px; border-radius:10px;">
+        <h2 style="color:#138ea6;">👶 Guess The Name - OTP Verification</h2>
+        <p>Your One-Time Password (OTP) is:</p>
+        <div style="font-size:36px; font-weight:bold; color:#ff7cd3; margin:20px 0;">${otp}</div>
+        <p style="font-size:14px; color:#666;">This OTP is valid for 10 minutes.</p>
+        <p style="font-size:13px; color:#999;">If you did not request this, please ignore this email.</p>
+      </div>
+    `;
 
     await transporter.sendMail({
       from: `Guess The Name <${process.env.EMAIL_USER}>`,
@@ -61,18 +57,17 @@ const htmlTemplate = `
 
     otpStore.set(email, {
       otp,
-      expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes
+      expiresAt: Date.now() + 10 * 60 * 1000,
     });
 
     res.json({ success: true });
-
   } catch (error) {
     console.error("OTP Error:", error);
     res.status(500).json({ success: false, error: "Failed to send OTP." });
   }
 });
 
-// Route: verify OTP
+// VERIFY OTP
 app.post('/verify-otp', (req, res) => {
   const { email, otp } = req.body;
   const record = otpStore.get(email);
@@ -93,10 +88,10 @@ app.get('/', (req, res) => {
   res.send("🎉 Backend is running.");
 });
 
-// Setup Socket.IO
+// Socket.IO for chat
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: 'https://strong-pixie-f97079.netlify.app' }
+  cors: { origin: 'https://guessthename.infinityfreeapp.com' }
 });
 
 io.on('connection', (socket) => {
