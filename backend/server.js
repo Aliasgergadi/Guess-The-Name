@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
@@ -8,23 +7,23 @@ const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const otpStore = new Map();
+const otpStore = new Map(); // Stores email->otp with expiry
 
-// CORS
+// ✅ CORS setup for frontend on InfinityFree
 app.use(cors({
-  origin: ['https://guessthename.infinityfreeapp.com'], // ✅ Your frontend domain
-  methods: ['GET', 'POST'],
+  origin: ['https://guessthename.infinityfreeapp.com'],
+  methods: ['GET', 'POST']
 }));
 app.use(express.json());
 
-// Rate limiter for OTP
+// ✅ Rate limit OTP sending (3 per 10 min)
 const otpLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 3,
-  message: { success: false, error: "Too many OTP requests. Try again later." }
+  message: { success: false, error: "Too many OTP requests. Try again in 10 minutes." }
 });
 
-// SEND OTP
+// ✅ SEND OTP endpoint
 app.post('/send-otp', otpLimiter, async (req, res) => {
   const { email } = req.body;
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -34,7 +33,7 @@ app.post('/send-otp', otpLimiter, async (req, res) => {
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        pass: process.env.EMAIL_PASS
       }
     });
 
@@ -44,7 +43,6 @@ app.post('/send-otp', otpLimiter, async (req, res) => {
         <p>Your One-Time Password (OTP) is:</p>
         <div style="font-size:36px; font-weight:bold; color:#ff7cd3; margin:20px 0;">${otp}</div>
         <p style="font-size:14px; color:#666;">This OTP is valid for 10 minutes.</p>
-        <p style="font-size:13px; color:#999;">If you did not request this, please ignore this email.</p>
       </div>
     `;
 
@@ -52,54 +50,70 @@ app.post('/send-otp', otpLimiter, async (req, res) => {
       from: `Guess The Name <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Your OTP for Guess The Name',
-      html: htmlTemplate,
+      html: htmlTemplate
     });
 
     otpStore.set(email, {
       otp,
-      expiresAt: Date.now() + 10 * 60 * 1000,
+      expiresAt: Date.now() + 10 * 60 * 1000
     });
 
-    res.json({ success: true });
-  } catch (error) {
-    console.error("OTP Error:", error);
-    res.status(500).json({ success: false, error: "Failed to send OTP." });
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("OTP Send Error:", err);
+    return res.status(500).json({ success: false, error: "Failed to send OTP." });
   }
 });
 
-// VERIFY OTP
+// ✅ VERIFY OTP endpoint
 app.post('/verify-otp', (req, res) => {
   const { email, otp } = req.body;
   const record = otpStore.get(email);
 
-  if (!record) return res.status(400).json({ success: false, error: "No OTP found." });
+  if (!record) {
+    return res.status(400).json({ success: false, error: "No OTP found." });
+  }
+
   if (Date.now() > record.expiresAt) {
     otpStore.delete(email);
     return res.status(400).json({ success: false, error: "OTP expired." });
   }
-  if (record.otp !== otp) return res.status(400).json({ success: false, error: "Invalid OTP." });
+
+  if (record.otp !== otp) {
+    return res.status(400).json({ success: false, error: "Invalid OTP." });
+  }
 
   otpStore.delete(email);
-  res.json({ success: true });
+  return res.json({ success: true });
 });
 
-// Root test
+// ✅ Health check
 app.get('/', (req, res) => {
-  res.send("🎉 Backend is running.");
+  res.send("🎉 Guess The Name backend is live!");
 });
 
-// Socket.IO for chat
+// ✅ Socket.IO for live chat
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: 'https://guessthename.infinityfreeapp.com' }
+  cors: {
+    origin: 'https://guessthename.infinityfreeapp.com',
+    methods: ['GET', 'POST']
+  }
 });
 
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-  socket.on('chat message', (msg) => io.emit('chat message', msg));
-  socket.on('disconnect', () => console.log('User disconnected:', socket.id));
+  console.log('🔌 User connected:', socket.id);
+
+  socket.on('chat message', (msg) => {
+    io.emit('chat message', msg); // Broadcast to all users
+  });
+
+  socket.on('disconnect', () => {
+    console.log('❌ User disconnected:', socket.id);
+  });
 });
 
+// ✅ Start server
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Server is running on port ${PORT}`);
 });
