@@ -4,28 +4,35 @@ const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
 const rateLimit = require('express-rate-limit');
+require('dotenv').config(); // To load .env variables
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const otpStore = new Map(); // Stores email->otp with expiry
 
-// ✅ CORS setup for frontend on InfinityFree
+// ✅ Memory store for OTPs
+const otpStore = new Map(); // email => { otp, expiresAt }
+
+// ✅ CORS setup for InfinityFree frontend
 app.use(cors({
   origin: ['https://guessthename.infinityfreeapp.com'],
   methods: ['GET', 'POST']
 }));
 app.use(express.json());
 
-// ✅ Rate limit OTP sending (3 per 10 min)
+// ✅ Rate limiting to prevent abuse (3 OTPs per 10 mins per IP)
 const otpLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000,
+  windowMs: 10 * 60 * 1000, // 10 minutes
   max: 3,
   message: { success: false, error: "Too many OTP requests. Try again in 10 minutes." }
 });
 
-// ✅ SEND OTP endpoint
+// ✅ Send OTP via email
 app.post('/send-otp', otpLimiter, async (req, res) => {
   const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ success: false, error: "Email is required." });
+  }
+
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   try {
@@ -37,35 +44,35 @@ app.post('/send-otp', otpLimiter, async (req, res) => {
       }
     });
 
-    const htmlTemplate = `
-      <div style="font-family:Arial,sans-serif; background-color:#f9f9f9; padding:20px; border-radius:10px;">
+    const htmlContent = `
+      <div style="font-family:Arial,sans-serif; background:#f1f8ff; padding:20px; border-radius:10px;">
         <h2 style="color:#138ea6;">👶 Guess The Name - OTP Verification</h2>
-        <p>Your One-Time Password (OTP) is:</p>
+        <p>Your OTP is:</p>
         <div style="font-size:36px; font-weight:bold; color:#ff7cd3; margin:20px 0;">${otp}</div>
-        <p style="font-size:14px; color:#666;">This OTP is valid for 10 minutes.</p>
+        <p>This OTP is valid for <b>10 minutes</b>.</p>
       </div>
     `;
 
     await transporter.sendMail({
-      from: `Guess The Name <${process.env.EMAIL_USER}>`,
+      from: `"Guess The Name" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Your OTP for Guess The Name',
-      html: htmlTemplate
+      html: htmlContent
     });
 
     otpStore.set(email, {
       otp,
-      expiresAt: Date.now() + 10 * 60 * 1000
+      expiresAt: Date.now() + 10 * 60 * 1000 // 10 mins
     });
 
     return res.json({ success: true });
   } catch (err) {
-    console.error("OTP Send Error:", err);
+    console.error("❌ Error sending OTP:", err);
     return res.status(500).json({ success: false, error: "Failed to send OTP." });
   }
 });
 
-// ✅ VERIFY OTP endpoint
+// ✅ Verify OTP
 app.post('/verify-otp', (req, res) => {
   const { email, otp } = req.body;
   const record = otpStore.get(email);
@@ -87,6 +94,21 @@ app.post('/verify-otp', (req, res) => {
   return res.json({ success: true });
 });
 
+// ✅ Handle form submission (You can later connect this to Google Sheets or database)
+app.post('/submit-form', (req, res) => {
+  const { name, email, guess } = req.body;
+
+  if (!name || !email || !guess) {
+    return res.status(400).json({ success: false, error: "Missing required fields." });
+  }
+
+  // Just log for now (or save to DB/Sheet)
+  console.log('📝 Form Submitted:', { name, email, guess });
+
+  // ✅ You can forward this to Google Sheets / database here
+  return res.status(200).json({ success: true, message: "Form submitted." });
+});
+
 // ✅ Health check
 app.get('/', (req, res) => {
   res.send("🎉 Guess The Name backend is live!");
@@ -105,7 +127,7 @@ io.on('connection', (socket) => {
   console.log('🔌 User connected:', socket.id);
 
   socket.on('chat message', (msg) => {
-    io.emit('chat message', msg); // Broadcast to all users
+    io.emit('chat message', msg); // Broadcast to all
   });
 
   socket.on('disconnect', () => {
@@ -113,7 +135,7 @@ io.on('connection', (socket) => {
   });
 });
 
-// ✅ Start server
+// ✅ Start the server
 server.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
