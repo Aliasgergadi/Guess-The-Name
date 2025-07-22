@@ -31,7 +31,27 @@ app.post('/send-otp', otpLimiter, async (req, res) => {
       from: process.env.EMAIL_USER,
       to: email,
       subject: "Your OTP",
-      html: `<h1>${otp}</h1><p>Valid for 10min</p>`
+      html: `
+  <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 10px; background: #f9f9f9;">
+    <h2 style="color: #333;">Guess The Name - OTP Verification</h2>
+    <p style="font-size: 16px; color: #555;">Hello,</p>
+    <p style="font-size: 16px; color: #555;">
+      Your One-Time Password (OTP) for verifying your email is:
+    </p>
+    <div style="font-size: 28px; font-weight: bold; text-align: center; padding: 15px 0; color: #2c3e50;">
+      ${otp}
+    </div>
+    <p style="font-size: 14px; color: #888;">
+      This OTP is valid for <strong>10 minutes</strong>. Please do not share this code with anyone.
+    </p>
+    <hr style="margin: 20px 0;">
+    <p style="font-size: 12px; color: #aaa;">
+      If you did not request this, please ignore this email.
+    </p>
+    <p style="font-size: 12px; color: #aaa;">– Guess The Name Team</p>
+  </div>
+`
+
     });
 
     otpStore.set(email, { otp, expires: Date.now() + 600000 });
