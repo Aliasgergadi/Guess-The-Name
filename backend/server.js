@@ -5,30 +5,29 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 const http = require('http');
 const rateLimit = require('express-rate-limit');
+const { Resend } = require('resend');
 
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: 'https://guessthename.infinityfreeapp.com' }));
 
+const resend = new Resend(process.env.RESEND_API_KEY);
 const otpStore = new Map();
+
+// Limit by IP or email
 const otpLimiter = rateLimit({
-  windowMs: 10*60*1000, // 10min
-  max: 3,
-  message: { success: false, error: "Too many OTP requests." }
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 10,
+  message: { success: false, error: "Too many OTP requests. Try again later." }
 });
 
 app.post('/send-otp', otpLimiter, async (req, res) => {
   const email = req.body.email?.trim();
   if (!email) return res.status(400).json({ success: false, error: "Email required" });
-  const otp = (Math.floor(100000 + Math.random()*900000)).toString();
+  const otp = (Math.floor(100000 + Math.random() * 900000)).toString();
   try {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-    });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    await resend.emails.send({
+      from: 'Guess The Name <otp@onresend.com>',
       to: email,
       subject: "Your OTP",
       html: `
@@ -51,7 +50,6 @@ app.post('/send-otp', otpLimiter, async (req, res) => {
     <p style="font-size: 12px; color: #aaa;">– Guess The Name Team</p>
   </div>
 `
-
     });
 
     otpStore.set(email, { otp, expires: Date.now() + 600000 });
@@ -89,7 +87,8 @@ app.get('/', (req, res) => res.send("OK"));
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: 'https://guessthename.infinityfreeapp.com' } });
-io.on('connection', s => {
-  s.on('chat message', msg => io.emit('chat message', msg));
+io.on('connection', socket => {
+  socket.on('chat message', msg => io.emit('chat message', msg));
 });
+
 server.listen(process.env.PORT || 3000, () => console.log("Server live"));
